@@ -12,8 +12,8 @@ NetWorkManager::NetWorkManager() :
 	successInit(false),
 	listenSocket(INVALID_SOCKET),
 	clientSockets(
-		{INVALID_SOCKET,
-		INVALID_SOCKET}
+		{ INVALID_SOCKET,
+		INVALID_SOCKET }
 	)
 {
 	successInit = WSAStartup(MAKEWORD(2, 2), &wsaData) == 0;
@@ -69,42 +69,67 @@ bool NetWorkManager::StartConnect()
 /// <returns>接続が成功した場合は true を返す</returns>
 bool NetWorkManager::AcceptClients()
 {
-	struct timeval timeout = {TIMEOUT_SECOND, 0};
+	struct timeval timeout = { TIMEOUT_SECOND, 0 };
 	fd_set readfds;
 	FD_ZERO(&readfds);
 	FD_SET(listenSocket, &readfds);
+	bool accepted = false;
 
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		printf("%d 番目のクライアント\n", i);
+		accepted = false;
 		// 接続を試みる
 		for (int j = 0; j < MAX_RETRY_COUNT; j++)
 		{
 			FD_ZERO(&readfds);
 			FD_SET(listenSocket, &readfds);
-			if (select(0, &readfds, NULL, NULL, &timeout) > 0)
+			timeout.tv_sec = TIMEOUT_SECOND;
+			timeout.tv_usec = 0;
+			int result = select(0, &readfds, NULL, NULL, &timeout);
+
+			if (result < 0)
 			{
-				if (FD_ISSET(listenSocket, &readfds) == 1)
+				printf("select関数でエラー\n");
+				closesocket(listenSocket);
+				return false;
+			}
+
+			if (result > 0)
+			{
+				if (FD_ISSET(listenSocket, &readfds))
 				{
 					clientSockets[i] = accept(listenSocket, NULL, NULL);
 
 					// 無効なソケットが返ってきたら、接続失敗
 					if (clientSockets[i] == INVALID_SOCKET)
 					{
-						printf("クライアントとの接続失敗\n");
+						closesocket(listenSocket);
 						return false;
 					}
 
-					closesocket(listenSocket);
-					return true;
+					accepted = true;
+					break;
 				}
 			}
 
-			printf("再接続：%d 回目\n", j + 1);
+			printf("接続待機再試行：%d 回目\n", j + 1);
 		}
+
+		// 接続に失敗したら false を返す
+		if (accepted == false)
+		{
+			printf("%d 番目のクライアントの接続に失敗。\n", i);
+			closesocket(listenSocket);
+			return false;
+		}
+
+		printf("%d 番目のクライアント：接続成功\n", i);
 	}
 
-	return false;
+	closesocket(listenSocket);
+
+	return true;
 }
 
 /// <summary>

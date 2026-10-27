@@ -1,4 +1,6 @@
-﻿
+﻿#include "NetWorkManager.h"
+#include "DxLib.h"
+
 /*
 *	クライアント側メイン処理メモ
 *	①winsockの初期化
@@ -19,8 +21,33 @@
 *	⑮プログラム終了
 */
 
-int main()
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
+	SetDoubleStartValidFlag(TRUE);
+	ChangeWindowMode(TRUE);
+	SetGraphMode(640, 480, 32);
+	SetDrawScreen(DX_SCREEN_BACK);
+
+	if (DxLib_Init() == -1)
+	{
+		return 1;
+	}
+
+	NetWorkManager netWorkManager;
+
+	if (netWorkManager.SuccessInit() == false)
+	{
+		printfDx("winsockの初期化に失敗。プログラムを終了します\n");
+		return 1;
+	}
+
+	if (netWorkManager.ConnectServer() == false)
+	{
+		printfDx("サーバーとの接続に失敗。プログラムを終了します\n");
+		return 1;
+	}
+
+	DxLib_End();
 
 	return 0;
 }
