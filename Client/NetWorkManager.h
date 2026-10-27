@@ -17,9 +17,9 @@ class NetWorkManager
 public:
 	NetWorkManager();	// コンストラクタ
 	bool SuccessInit() const;	// 初期化に成功したかどうかを返す
+	bool ConnectServer();	// サーバーと接続する
 
 private:
-	bool MakeSocket();	// ソケットの作成
 	WSADATA wsaData;	// ソケットの作成に必要な情報
 	bool successInit;	// 初期化に成功したか
 	SOCKET connectSocket;	// 接続用ソケット

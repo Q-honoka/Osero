@@ -23,10 +23,10 @@ bool NetWorkManager::SuccessInit() const
 }
 
 /// <summary>
-/// 接続用のソケットを作成する
+/// サーバーと接続する
 /// </summary>
-/// <returns>作成に成功した場合は true を返す</returns>
-bool NetWorkManager::MakeSocket()
+/// <returns>接続成功した場合は true を返す</returns>
+bool NetWorkManager::ConnectServer()
 {
 	struct addrinfo* result = NULL,
 		* ptr = NULL,
@@ -56,5 +56,19 @@ bool NetWorkManager::MakeSocket()
 		return false;
 	}
 
-	return true;
+	// サーバーと接続する
+	iResult = connect(connectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+	if (iResult == SOCKET_ERROR)
+	{
+		closesocket(connectSocket);
+		connectSocket = INVALID_SOCKET;
+	}
+
+	freeaddrinfo(result);
+
+	if (connectSocket == INVALID_SOCKET)
+	{
+		printf("サーバーとの接続に失敗。falseを返す\n");
+		return false;
+	}
 }
