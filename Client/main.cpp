@@ -1,4 +1,5 @@
 ﻿#include "NetWorkManager.h"
+#include "Packet.h"
 #include "DxLib.h"
 
 /*
@@ -8,13 +9,13 @@
 *	③DxLibの初期化
 *	④サーバーと接続
 *	⑤サーバーからの初期データ受け取り
-* 
+*
 *	⑦ゲームループ開始
 *	⑧サーバーに入力位置を送信
 *	⑨サーバーから処理結果を受信
 *	⑩ゲーム画面描画
 *	⑪ゲームが終了したらループを抜ける
-* 
+*
 *	⑫リザルトの表示
 *	⑬winsockの終了
 *	⑭DxLibの終了
@@ -46,6 +47,18 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		printfDx("サーバーとの接続に失敗。プログラムを終了します\n");
 		return 1;
 	}
+
+	InitPacket packet;
+	if (netWorkManager.RecvPacket(packet) == false)
+	{
+		printfDx("受信に失敗\n");
+		return 1;
+	}
+
+	printfDx("受信に成功\n");
+	printfDx("自分の手番：%s\n", packet.roll == ClientRoll::FIRST ? "先手" : "後手");
+
+	WaitKey();
 
 	DxLib_End();
 

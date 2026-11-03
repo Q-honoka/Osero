@@ -24,7 +24,34 @@ public:
 	bool StartConnect();	// 接続の受け付けを開始する
 	bool AcceptClients();	// クライアントと接続する
 	template<typename T>
-	bool SendPacket(int num, const T& packet);	// クライアントにデータを送信する
+	bool SendPacket(int num, const T& packet)	// クライアントにデータを送信する
+	{
+		const char* data =
+			reinterpret_cast<const char*>(&packet);
+
+		int totalSend = 0;
+		int packetSize = sizeof(T);
+
+		// すべてのデータが送信できるまで繰り返す
+		while (totalSend < packetSize)
+		{
+			int iResult = send(clientSockets[num],
+				data + totalSend,
+				packetSize - totalSend,
+				0);
+
+			// エラーが起きた場合は false を返す
+			if (iResult == SOCKET_ERROR)
+			{
+				return false;
+			}
+
+			totalSend += iResult;
+			printf("送信したサイズ：%d 中の %d\n", packetSize, totalSend);
+		}
+
+		return true;
+	}
 
 private:
 	bool MakeListenSocket();	// リッスン用ソケットを作成する

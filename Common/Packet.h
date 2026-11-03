@@ -22,7 +22,7 @@ enum class Result
 	WIN,	// 勝ち
 	LOSE,	// 負け
 	DRAW,	// 引き分け
-	ERROR,	// エラー
+	RESULT_ERROR,	// エラー
 };
 
 /// <summary>

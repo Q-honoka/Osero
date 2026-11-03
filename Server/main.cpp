@@ -1,4 +1,5 @@
 ﻿#include "NetWorkManager.h"
+#include "Packet.h"
 
 /*
 *	サーバー側メイン処理メモ
@@ -43,6 +44,28 @@ int main()
 		printf("クライアントと接続できなかった\n");
 		return 1;
 	}
+
+	InitPacket packet = { 
+		{PacketID::READY, 
+		sizeof(InitPacket)},
+		ClientRoll::FIRST,
+		ClientRoll::FIRST,
+		{0}
+	};
+
+	if (netWorkManager.SendPacket(0, packet) == false)
+	{
+		printf("クライアント１：送信失敗\n");
+		return 1;
+	}
+	packet.roll = ClientRoll::SECOND;
+	if (netWorkManager.SendPacket(1, packet) == false)
+	{
+		printf("クライアント２：送信失敗\n");
+		return 1;
+	}
+
+	printf("送信成功\n");
 
 	return 0;
 }
