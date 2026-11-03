@@ -7,4 +7,5 @@
 struct PacketHeader
 {
 	PacketID id;	// パケットの種類
+	uint16_t packetSize;	// パケットの大きさ
 };

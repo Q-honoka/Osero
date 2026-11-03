@@ -23,6 +23,8 @@ public:
 	bool SuccessInit() const;	// 初期化に成功したか返す
 	bool StartConnect();	// 接続の受け付けを開始する
 	bool AcceptClients();	// クライアントと接続する
+	template<typename T>
+	bool SendPacket(int num, const T& packet);	// クライアントにデータを送信する
 
 private:
 	bool MakeListenSocket();	// リッスン用ソケットを作成する

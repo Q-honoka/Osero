@@ -37,7 +37,7 @@ struct InitPacket
 };
 
 /// <summary>
-/// プレイ中に送受信するプレイヤーデータ
+/// プレイ中に送受信するクライアントデータ
 /// </summary>
 struct PlayerPacket
 {
