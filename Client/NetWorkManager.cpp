@@ -1,4 +1,5 @@
 ﻿#include "NetWorkManager.h"
+#include "PacketHeader.h"
 
 #define DEFAULT_PORT "27015"
 
@@ -71,4 +72,42 @@ bool NetWorkManager::ConnectServer()
 		printf("サーバーとの接続に失敗。falseを返す\n");
 		return false;
 	}
+
+	return true;
+}
+
+/// <summary>
+/// ヘッダを受信する
+/// </summary>
+/// <param name="h">ヘッダ</param>
+/// <returns>ヘッダを受信できた場合は true を返す</returns>
+bool NetWorkManager::RecvHeader(PacketHeader& h)
+{
+	PacketHeader header;
+	int totalRecv = 0;
+	int size = sizeof(PacketHeader);
+	char* data =
+		reinterpret_cast<char*>(&header);
+
+	int iResult;
+
+	// すべてのデータを受信するまで繰り返す
+	while (totalRecv < size)
+	{
+		iResult = recv(
+			connectSocket, 
+			data + totalRecv, 
+			size - totalRecv, 
+			0);
+
+		if (iResult == SOCKET_ERROR)
+		{
+			return false;
+		}
+
+		totalRecv += iResult;
+	}
+
+	h = header;
+	return true;
 }
