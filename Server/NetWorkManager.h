@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <array>
 #include "PacketHeader.h"
+#include "Packet.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -53,12 +54,13 @@ public:
 
 		return true;
 	}
+
 	template<typename T>
 	bool RecvPacket(T& packet, int clientNum)
 	{
 		// ヘッダを受信してデータの種類を確認する
 		PacketHeader header;
-		if (RecvPacket(header, clientNum) == false) return false;
+		if (RecvHeader(header, clientNum) == false) return false;
 
 		printf("ヘッダの受信成功\n");
 

@@ -58,6 +58,45 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	printfDx("受信に成功\n");
 	printfDx("自分の手番：%s\n", packet.roll == ClientRoll::FIRST ? "先手" : "後手");
 
+	bool isEnd = false;
+	ClientRoll currentTurn = packet.turnPlayer;
+	int pos = 0;
+	while (isEnd == false)
+	{
+		// ターンプレイヤーの場合、位置を送信する
+		if (currentTurn == packet.roll)
+		{
+			PlayerPacket playerPacket =
+			{
+				{PacketID::PLAYING,
+				sizeof(PlayerPacket)},
+				pos++
+			};
+			if (netWorkManager.SendPacket(playerPacket) == false)
+			{
+				printfDx("サーバーへの送信失敗\n");
+				isEnd = true;
+			}
+			else
+			{
+				printfDx("サーバーへの送信成功\n");
+			}
+		}
+
+		// 結果の送信を待つ
+		ServerPacket serverPacket;
+		if (netWorkManager.RecvPacket(serverPacket) == false)
+		{
+			printfDx("サーバーからの受信失敗\n");
+			isEnd = true;
+		}
+		else
+		{
+			currentTurn = serverPacket.turnPlayer;
+			printfDx("現在のターン：%s\n", currentTurn == ClientRoll::FIRST ? "先手" : "後手");
+		}
+	}
+
 	WaitKey();
 
 	DxLib_End();
