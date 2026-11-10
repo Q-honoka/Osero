@@ -17,6 +17,7 @@ class NetWorkManager
 {
 public:
 	NetWorkManager();	// コンストラクタ
+	~NetWorkManager();	// デストラクタ
 	bool SuccessInit() const;	// 初期化に成功したかどうかを返す
 	bool ConnectServer();	// サーバーと接続する
 	template<typename T>

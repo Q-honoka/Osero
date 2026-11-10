@@ -22,6 +22,7 @@ class NetWorkManager
 {
 public:
 	NetWorkManager();	// コンストラクタ
+	~NetWorkManager();	// デストラクタ
 	bool SuccessInit() const;	// 初期化に成功したか返す
 	bool StartConnect();	// 接続の受け付けを開始する
 	bool AcceptClients();	// クライアントと接続する

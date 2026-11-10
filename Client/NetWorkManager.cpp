@@ -15,6 +15,18 @@ NetWorkManager::NetWorkManager() :
 }
 
 /// <summary>
+/// デストラクタ
+/// </summary>
+NetWorkManager::~NetWorkManager()
+{
+	if (connectSocket != INVALID_SOCKET)
+	{
+		closesocket(connectSocket);
+	}
+	WSACleanup();
+}
+
+/// <summary>
 /// 初期化に成功したかどうかを返す
 /// </summary>
 /// <returns>成功した場合は true を返す</returns>
@@ -95,12 +107,16 @@ bool NetWorkManager::RecvHeader(PacketHeader& h)
 	while (totalRecv < size)
 	{
 		iResult = recv(
-			connectSocket, 
-			data + totalRecv, 
-			size - totalRecv, 
+			connectSocket,
+			data + totalRecv,
+			size - totalRecv,
 			0);
 
 		if (iResult == SOCKET_ERROR)
+		{
+			return false;
+		}
+		if (iResult == 0)
 		{
 			return false;
 		}

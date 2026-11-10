@@ -20,6 +20,19 @@ NetWorkManager::NetWorkManager() :
 }
 
 /// <summary>
+/// デストラクタ
+/// </summary>
+NetWorkManager::~NetWorkManager()
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (clientSockets[i] != INVALID_SOCKET)
+			closesocket(clientSockets[i]);
+	}
+	WSACleanup();
+}
+
+/// <summary>
 /// 初期化の実行結果を返す
 /// </summary>
 /// <returns>成功している場合は true を返す</returns>
@@ -202,6 +215,11 @@ bool NetWorkManager::RecvHeader(PacketHeader& h, int clientNum)
 		{
 			return false;
 		}
+		if (iResult == 0)
+		{
+			return false;
+		}
+		printf("recvの戻り値：%d\n", iResult);
 
 		totalRecv += iResult;
 	}
