@@ -9,6 +9,7 @@
 #include <iphlpapi.h>
 #include <stdio.h>
 #include <array>
+#include "PacketHeader.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -52,10 +53,60 @@ public:
 
 		return true;
 	}
+	template<typename T>
+	bool RecvPacket(T& packet, int clientNum)
+	{
+		// ヘッダを受信してデータの種類を確認する
+		PacketHeader header;
+		if (RecvPacket(header, clientNum) == false) return false;
+
+		printf("ヘッダの受信成功\n");
+
+		// 正しいパケットか調べる
+		if (header.id != T::ID)
+		{
+			printf("異なるパケットIDを受信した\n");
+			return false;
+		}
+
+		// パケットデータを受信する
+		packet.header = header;
+		char* data =
+			reinterpret_cast<char*>(&packet);
+		int totalRecv = 0;
+		int size = header.packetSize - sizeof(PacketHeader);
+		int iResult;
+
+		// すべてのデータを受信するまで繰り返す
+		while (totalRecv < size)
+		{
+			iResult = recv(
+				clientSockets[clientNum],
+				data + sizeof(PacketHeader) + totalRecv,
+				size - totalRecv,
+				0);
+
+			if (iResult == SOCKET_ERROR)
+			{
+				return false;
+			}
+			if (iResult == 0)
+			{
+				printf("接続切断\n");
+				return false;
+			}
+
+			totalRecv += iResult;
+			printf("受信したデータサイズ %d 中 %d\n", size, totalRecv);
+		}
+
+		return true;
+	}
 
 private:
 	bool MakeListenSocket();	// リッスン用ソケットを作成する
 	bool BindListenSocket();	// リッスン用ソケットをバインドする
+	bool RecvHeader(PacketHeader& h, int clientNum);	// ヘッダを受信する
 
 	WSADATA wsaData;	// ソケット実装に必要な情報
 	bool successInit;	// 初期化に成功したかどうか

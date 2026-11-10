@@ -20,6 +20,35 @@ public:
 	bool SuccessInit() const;	// 初期化に成功したかどうかを返す
 	bool ConnectServer();	// サーバーと接続する
 	template<typename T>
+	bool SendPacket(const T& packet)	// クライアントにデータを送信する
+	{
+		const char* data =
+			reinterpret_cast<const char*>(&packet);
+
+		int totalSend = 0;
+		int packetSize = sizeof(T);
+
+		// すべてのデータが送信できるまで繰り返す
+		while (totalSend < packetSize)
+		{
+			int iResult = send(connectSocket,
+				data + totalSend,
+				packetSize - totalSend,
+				0);
+
+			// エラーが起きた場合は false を返す
+			if (iResult == SOCKET_ERROR)
+			{
+				return false;
+			}
+
+			totalSend += iResult;
+			printf("送信したサイズ：%d 中の %d\n", packetSize, totalSend);
+		}
+
+		return true;
+	}
+	template<typename T>
 	bool RecvPacket(T& packet)
 	{
 		// ヘッダを受信してデータの種類を確認する

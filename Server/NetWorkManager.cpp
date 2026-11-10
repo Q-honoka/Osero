@@ -169,3 +169,43 @@ bool NetWorkManager::BindListenSocket()
 
 	return true;
 }
+
+/// <summary>
+/// ヘッダを受信する
+/// </summary>
+/// <param name="h">ヘッダ</param>
+/// <param name="clientNum">受信するクライアントソケットの番号</param>
+/// <returns>受信できた場合は true を返す</returns>
+bool NetWorkManager::RecvHeader(PacketHeader& h, int clientNum)
+{
+	// 範囲外にアクセスしないようにする
+	if (clientNum < 0 || clientNum >= MAX_CLIENTS) return false;
+
+	PacketHeader header;
+	int totalRecv = 0;
+	int size = sizeof(PacketHeader);
+	char* data =
+		reinterpret_cast<char*>(&header);
+
+	int iResult;
+
+	// すべてのデータを受信するまで繰り返す
+	while (totalRecv < size)
+	{
+		iResult = recv(
+			clientSockets[clientNum],
+			data + totalRecv,
+			size - totalRecv,
+			0);
+
+		if (iResult == SOCKET_ERROR)
+		{
+			return false;
+		}
+
+		totalRecv += iResult;
+	}
+
+	h = header;
+	return true;
+}
