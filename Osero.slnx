@@ -4,6 +4,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Common/">
+    <File Path="Common/BoardData.h" />
     <File Path="Common/Packet.h" />
     <File Path="Common/PacketHeader.h" />
     <File Path="Common/PacketID.h" />

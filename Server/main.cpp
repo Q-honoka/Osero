@@ -1,5 +1,7 @@
-﻿#include "NetWorkManager.h"
+﻿#include "BoardData.h"
+#include "NetWorkManager.h"
 #include "Packet.h"
+#include "GameManager.h"
 
 /*
 *	サーバー側メイン処理メモ
@@ -23,6 +25,7 @@
 int main()
 {
 	NetWorkManager netWorkManager;
+	GameManager gameManager;
 
 	// 初期化に失敗したらプログラムを終了する
 	if (netWorkManager.SuccessInit() == false)
@@ -55,17 +58,17 @@ int main()
 
 	if (netWorkManager.SendPacket(0, packet) == false)
 	{
-		printf("クライアント１：送信失敗\n");
+		printf("クライアント１：初期パケットの送信失敗\n");
 		return 1;
 	}
 	packet.roll = ClientRoll::SECOND;
 	if (netWorkManager.SendPacket(1, packet) == false)
 	{
-		printf("クライアント２：送信失敗\n");
+		printf("クライアント２：初期パケットの送信失敗\n");
 		return 1;
 	}
 
-	printf("送信成功\n");
+	printf("初期パケットの送信成功\n");
 
 	// ゲームループ中の処理（テスト）
 	bool isEnd = false;
@@ -77,7 +80,7 @@ int main()
 		PlayerPacket playerPacket;
 		if (netWorkManager.RecvPacket(playerPacket, static_cast<int>(current)) == false)
 		{
-			printf("クライアント１：受信失敗\n");
+			printf("クライアント %d：受信失敗\n", static_cast<int>(current));
 			isEnd = true;
 		}
 		printf("クライアント %d から送られた座標：%d\n", static_cast<int>(current), playerPacket.pos);
