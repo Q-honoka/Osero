@@ -36,3 +36,19 @@ void GameManager::ResetBoard()
 	board[BOARD_SIZE * (topCenter + 1) + centerLeft + 1] =
 		static_cast<int>(BOARD_STATE::SECOND);	// 右下は白コマ（後手）
 }
+
+/// <summary>
+/// 合法手か調べる
+/// </summary>
+/// <param name="num">コマの位置</param>
+/// <param name="isFirst">コマの設置者が先手か</param>
+/// <returns>合法の場合 true を返す</returns>
+bool GameManager::CheckLegalMove(const int num, const bool isFirst)
+{
+	// 空白マスでない場合、falseを返す
+	if (board[num] != static_cast<char>(BOARD_STATE::BLANK)) 
+		return false;
+
+	// コマが反転できるか調べる
+	
+}
