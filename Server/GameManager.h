@@ -27,6 +27,7 @@ public:
 
 private:
 	void ResetBoard();	// 盤面のリセット
+	bool CheckReverse(const int num, const bool isFirst);	// コマが反転できるか調べる
 	void BoardUpdate(const int num, const bool isFirst);	// 盤面を更新する
 	void BattleUpdate(const bool isFirst);	// 戦闘に使用する値の計算
 };
