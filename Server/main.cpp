@@ -86,10 +86,16 @@ int main()
 		printf("クライアント %d から送られた座標：%d\n", static_cast<int>(current), playerPacket.pos);
 
 		// ゲームロジックの処理
+		int pos = playerPacket.pos;
+		bool isFirst = current == ClientRoll::FIRST;
+		if (gameManager.CheckLegalMove(pos, isFirst))
+		{
+			gameManager.Update(pos, isFirst);
 
-		// 手番を変更する
-		if (current == ClientRoll::FIRST) current = ClientRoll::SECOND;
-		else current = ClientRoll::FIRST;
+			// 手番を変更する
+			if (current == ClientRoll::FIRST) current = ClientRoll::SECOND;
+			else current = ClientRoll::FIRST;
+		}
 
 		// 結果をクライアントに送信
 		ServerPacket serverPacket =

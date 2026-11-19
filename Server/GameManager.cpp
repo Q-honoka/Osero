@@ -126,6 +126,16 @@ bool GameManager::CheckLegalMove(const int num, const bool isFirst)
 }
 
 /// <summary>
+/// 更新処理
+/// </summary>
+/// <param name="num">コマの位置</param>
+/// <param name="isFirst">コマの設置者が先手か</param>
+void GameManager::Update(const int num, const bool isFirst)
+{
+	BoardUpdate(num, isFirst);
+}
+
+/// <summary>
 /// 反転できるか調べる
 /// </summary>
 /// <param name="num">コマの位置</param>
@@ -185,4 +195,28 @@ bool GameManager::CheckReverse(const int num, const bool isFirst)
 	}
 
 	return isReverse;
+}
+
+/// <summary>
+/// 盤面の更新を行う
+/// </summary>
+/// <param name="num">コマの位置</param>
+/// <param name="isFirst">コマの設置者が先手か</param>
+void GameManager::BoardUpdate(const int num, const bool isFirst)
+{
+	char myColor = isFirst ? 
+		static_cast<char>(BOARD_STATE::FIRST) : 
+		static_cast<char>(BOARD_STATE::SECOND);
+
+	// 設置者の色のコマを設置
+	board[num] = myColor;
+
+	// 反転位置のコマの色を変える
+	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
+	{
+		if (reversePositions[i] == '1')
+		{
+			board[i] = myColor;
+		}
+	}
 }
