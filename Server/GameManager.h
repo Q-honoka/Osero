@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "BoardData.h"
+
 // 盤面ロジックメモ
 // ①指定されたマスが有効なマスか調べる
 // 空白のマスなら〇
@@ -30,4 +32,6 @@ private:
 	bool CheckReverse(const int num, const bool isFirst);	// コマが反転できるか調べる
 	void BoardUpdate(const int num, const bool isFirst);	// 盤面を更新する
 	void BattleUpdate(const bool isFirst);	// 戦闘に使用する値の計算
+
+	char reversePositions[BOARD_SIZE * BOARD_SIZE];	// 反転できるコマの位置
 };

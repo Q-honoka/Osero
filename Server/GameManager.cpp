@@ -1,5 +1,7 @@
 ﻿#include "GameManager.h"
 #include "BoardData.h"
+#include <stdio.h>
+#include <string.h>
 
 char board[BOARD_SIZE * BOARD_SIZE] = { };
 
@@ -75,7 +77,8 @@ bool IsWithinBoard(int num, CHECK_DIRECTION direction)
 /// <summary>
 /// コンストラクタ
 /// </summary>
-GameManager::GameManager()
+GameManager::GameManager() :
+	reversePositions({'0'})
 {
 	// 盤面をリセットする
 	ResetBoard();
@@ -140,10 +143,12 @@ bool GameManager::CheckReverse(const int num, const bool isFirst)
 		static_cast<char>(BOARD_STATE::SECOND) : 
 		static_cast<char>(BOARD_STATE::FIRST);	// 相手のコマの色
 
+	// 反転位置をリセットする
+	memset(reversePositions, '0', sizeof(reversePositions));
+
 	// 8方向を調べる
 	for (int i = 0; i < 8; i++)
 	{
-		isReverse = false;	// 反転できるかどうかを初期化
 		nextNum = num;	// 次のマスの位置を初期化
 
 		while (true)
@@ -165,15 +170,17 @@ bool GameManager::CheckReverse(const int num, const bool isFirst)
 			// 自分コマがあってかつ、相手のコマが間にある場合は反転できるため、その方向のループを終了する
 			if (board[nextNum] == myColor && isBetween == true)
 			{
+				// 反転位置を記録する
+				int start = num + directionOffsets[i].offset;	// 最初の位置
+				int end = nextNum;	// 終点
+				for (int j = start; j < end; j += directionOffsets[i].offset)
+				{
+					reversePositions[j] = '1';
+				}
+
 				isReverse = true;
 				break;
 			}
-		}
-
-		// 反転できる場合、trueを返す
-		if (isReverse)
-		{
-			return true;	
 		}
 	}
 
