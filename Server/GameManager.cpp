@@ -78,7 +78,11 @@ bool IsWithinBoard(int num, CHECK_DIRECTION direction)
 /// コンストラクタ
 /// </summary>
 GameManager::GameManager() :
-	reversePositions({'0'})
+	reversePositions({'0'}),
+	battleData({
+		{ 100, 0, 0 }, 
+		{ 100, 0, 0 }
+		})
 {
 	// 盤面をリセットする
 	ResetBoard();
@@ -133,6 +137,9 @@ bool GameManager::CheckLegalMove(const int num, const bool isFirst)
 void GameManager::Update(const int num, const bool isFirst)
 {
 	BoardUpdate(num, isFirst);
+
+	// 盤面を更新したあとに、バトルデータを更新する
+	BattleUpdate(num, isFirst);
 }
 
 /// <summary>
@@ -235,6 +242,50 @@ void GameManager::BoardUpdate(const int num, const bool isFirst)
 }
 
 /// <summary>
+/// バトルに使用する値の計算をする
+/// </summary>
+/// <param name="num">コマの位置</param>
+/// <param name="isFirst">コマの設置者が先手か</param>
+void GameManager::BattleUpdate(const int num, const bool isFirst)
+{
+	BattleData FirstBattleData = battleData[0];	// 先手のバトルデータ
+	BattleData SecondBattleData = battleData[1];	// 後手のバトルデータ
+
+	int myIndex = isFirst ? 0 : 1;	// 設置者のインデックス
+
+	// 設置者（攻撃側）のバトルデータを更新する
+	// HPは角にコマを置いた場合、10回復する
+	if (IsCorner(num)) FirstBattleData.hp += HEAL_AMOUNT;
+	if (FirstBattleData.hp > MAX_HP) FirstBattleData.hp = MAX_HP;
+	// コンボ数は、反転したコマの数
+	FirstBattleData.combo = GetReverseCount();
+	if (FirstBattleData.combo > MAX_COMBO) FirstBattleData.combo = MAX_COMBO;
+	// 攻撃力は、反転したコマの数*基礎攻撃力
+	FirstBattleData.attack = GetReverseCount() * BASE_ATTACK + COMBO_DAMAGE * FirstBattleData.combo;
+	if (FirstBattleData.attack > MAX_ATTACK) FirstBattleData.attack = MAX_ATTACK;
+	// ダメージは0
+	FirstBattleData.damage = 0;
+
+	// 防御側のバトルデータを更新する
+	// 防御力は、端にあるコマの数*基礎防御力
+	int defensePower = GetEdgeCount(!isFirst) * BASE_DEFENSE;
+	if (defensePower > MAX_DEFENSE) defensePower = MAX_DEFENSE;	// 防御力の上限を超えた場合、上限値にする
+	// 攻撃力は0
+	SecondBattleData.attack = 0;
+	// コンボ数は0
+	SecondBattleData.combo = 0;
+	// ダメージは、攻撃側の攻撃力-防御側の防御力を引いた値
+	SecondBattleData.damage = (FirstBattleData.attack - defensePower > 0) ? FirstBattleData.attack - defensePower : 0;
+	// HPは、攻撃側の攻撃力-防御側の防御力を引いた値
+	SecondBattleData.hp -= SecondBattleData.damage;
+	if (SecondBattleData.hp < 0) SecondBattleData.hp = 0;	// HPが0未満になった場合、0にする
+
+	// バトルデータを更新する
+	battleData[myIndex] = FirstBattleData;
+	battleData[!myIndex] = SecondBattleData;
+}
+
+/// <summary>
 /// ボードが埋まっているかどうかを返す
 /// </summary>
 /// <returns>盤面が埋まっている場合 true を返す</returns>
@@ -251,4 +302,96 @@ bool GameManager::isBoardFull() const
 
 	// 空白マスがない場合は、埋まっているため true を返す
 	return true;
+}
+
+/// <summary>
+/// コマの反転数を返す
+/// </summary>
+/// <returns>反転数</returns>
+int GameManager::GetReverseCount() const
+{
+	int reverseCount = 0;
+	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
+	{
+		if (reversePositions[i] == '1')
+		{
+			reverseCount++;
+		}
+	}
+
+	// コマを設置した位置も含まれているため、1を引いて返す
+	return reverseCount - 1;
+}
+
+/// <summary>
+/// 設置したコマの位置が角かどうかを返す
+/// </summary>
+/// <param name="num">コマの位置</param>
+/// <returns>角の場合 true を返す</returns>
+bool GameManager::IsCorner(const int num) const
+{
+	// 角の位置を定義する
+	const int cornerPositions[4] = {
+		0, BOARD_SIZE - 1, BOARD_SIZE * (BOARD_SIZE - 1), BOARD_SIZE * BOARD_SIZE - 1
+	};
+
+	// 角の位置かどうかを調べる
+	for (int i = 0; i < 4; i++)
+	{
+		if (num == cornerPositions[i])
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+/// <summary>
+/// 盤面の端にあるコマの数を返す
+/// </summary>
+/// <param name="isFirst">調べたい手番が先手か</param>
+/// <returns>端にあるコマの数</returns>
+int GameManager::GetEdgeCount(const bool isFirst) const
+{
+	int edgeCount = 0;
+	char myColor = isFirst ?
+		static_cast<char>(BOARD_STATE::FIRST) :
+		static_cast<char>(BOARD_STATE::SECOND);
+
+	// 角を除いた端のマスを調べる
+
+	// 上辺のマスを調べる(1～BOARD_SIZE - 2)
+	for (int i = 0 + 1; i < BOARD_SIZE - 1; i++)
+	{
+		if (board[i] == myColor)
+		{
+			edgeCount++;
+		}
+	}
+	// 下辺のマスを調べる(BOARD_SIZE * (BOARD_SIZE - 1) + 1 ～ BOARD_SIZE * BOARD_SIZE - 2)
+	for (int i = BOARD_SIZE * (BOARD_SIZE - 1) + 1; i < BOARD_SIZE * BOARD_SIZE - 1; i++)
+	{
+		if (board[i] == myColor)
+		{
+			edgeCount++;
+		}
+	}
+	// 左辺のマスを調べる(BOARD_SIZE ～ BOARD_SIZE * (BOARD_SIZE - 2) )
+	for (int i = BOARD_SIZE; i < BOARD_SIZE * (BOARD_SIZE - 1); i += BOARD_SIZE)
+	{
+		if (board[i] == myColor)
+		{
+			edgeCount++;
+		}
+	}
+	// 右辺のマスを調べる
+	for (int i = BOARD_SIZE + BOARD_SIZE - 1; i < BOARD_SIZE * BOARD_SIZE - 1; i += BOARD_SIZE)
+	{
+		if (board[i] == myColor)
+		{
+			edgeCount++;
+		}
+	}
+
+	return edgeCount;
 }

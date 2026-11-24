@@ -26,6 +26,17 @@ enum class Result
 };
 
 /// <summary>
+/// バトルに使用するデータ
+/// </summary>
+struct BattleData
+{
+	int hp;	// 体力
+	int attack;	// 攻撃力
+	int combo;	// コンボ数
+	int damage;	// ダメージ
+};
+
+/// <summary>
 /// 最初に送受信するデータ
 /// </summary>
 struct InitPacket
