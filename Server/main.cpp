@@ -88,13 +88,23 @@ int main()
 		// ゲームロジックの処理
 		int pos = playerPacket.pos;
 		bool isFirst = current == ClientRoll::FIRST;
+
+		// 合法手の場合は盤面の更新を行う
 		if (gameManager.CheckLegalMove(pos, isFirst))
 		{
 			gameManager.Update(pos, isFirst);
-
-			// 手番を変更する
-			if (current == ClientRoll::FIRST) current = ClientRoll::SECOND;
-			else current = ClientRoll::FIRST;
+		}
+		
+		// ゲームが終了しているか調べる
+		if (gameManager.IsGameEnd())
+		{
+			printf("ゲーム終了\n");
+			isEnd = true;
+		}
+		else
+		{
+			// 手番を交代する
+			current = (current == ClientRoll::FIRST) ? ClientRoll::SECOND : ClientRoll::FIRST;
 		}
 
 		// 結果をクライアントに送信

@@ -47,6 +47,7 @@ struct PlayerPacket
 	PacketHeader header;	// ヘッダ
 
 	int pos;	// 設置位置
+	bool isPass;	// パスしたかどうか
 };
 
 /// <summary>

@@ -17,6 +17,7 @@
 // 
 // ⑤ゲームの終了チェック
 // 盤面が埋まるもしくはどちらかの体力が0になれば終了
+// 両者がパスをした場合も終了
 // 
 
 class GameManager
@@ -32,6 +33,7 @@ private:
 	bool CheckReverse(const int num, const bool isFirst);	// コマが反転できるか調べる
 	void BoardUpdate(const int num, const bool isFirst);	// 盤面を更新する
 	void BattleUpdate(const bool isFirst);	// 戦闘に使用する値の計算
+	bool isBoardFull() const; // 盤面が埋まっているか調べる
 
 	char reversePositions[BOARD_SIZE * BOARD_SIZE];	// 反転できるコマの位置
 };

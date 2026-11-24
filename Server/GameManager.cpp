@@ -136,6 +136,19 @@ void GameManager::Update(const int num, const bool isFirst)
 }
 
 /// <summary>
+/// ゲームが終了したか返す
+/// </summary>
+/// <returns>ゲームが終了した場合 true を返す</returns>
+bool GameManager::IsGameEnd() const
+{
+	// 盤面が埋まった場合は終了
+	if(isBoardFull())
+		return true;
+
+	return false;
+}
+
+/// <summary>
 /// 反転できるか調べる
 /// </summary>
 /// <param name="num">コマの位置</param>
@@ -219,4 +232,23 @@ void GameManager::BoardUpdate(const int num, const bool isFirst)
 			board[i] = myColor;
 		}
 	}
+}
+
+/// <summary>
+/// ボードが埋まっているかどうかを返す
+/// </summary>
+/// <returns>盤面が埋まっている場合 true を返す</returns>
+bool GameManager::isBoardFull() const
+{
+	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
+	{
+		// 空白マスがある場合 false を返す
+		if (board[i] == static_cast<char>(BOARD_STATE::BLANK))
+		{
+			return false;
+		}
+	}
+
+	// 空白マスがない場合は、埋まっているため true を返す
+	return true;
 }
