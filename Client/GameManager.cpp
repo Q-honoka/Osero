@@ -19,6 +19,14 @@ GameManager::GameManager() :
 }
 
 /// <summary>
+/// 更新処理
+/// </summary>
+void GameManager::Update()
+{
+	GetMousePoint(&cursorX, &cursorY);
+}
+
+/// <summary>
 /// 描画
 /// </summary>
 void GameManager::Draw() const
@@ -37,6 +45,48 @@ void GameManager::Draw() const
 bool GameManager::SuccessInit() const
 {
 	return successInit;
+}
+
+/// <summary>
+/// 盤面上の位置を返す
+/// </summary>
+/// <returns>
+/// -1:盤面の外
+/// それ以外：盤面の中
+/// </returns>
+int GameManager::GetBoardPosition() const
+{
+	int x = -1, y = -1;
+	
+	// Xの位置を調べる
+	for (int i = 0; i <= BOARD_SIZE; i++)
+	{
+		// カーソルが現在マスの右端より左なら、X座標のマス番号は index - 1
+		if (cursorX < i * (BOARD_WIDTH / BOARD_SIZE))
+		{
+			x = i - 1;
+			break;
+		}
+	}
+
+	// Yの位置を調べる
+	for (int i = 0; i <= BOARD_SIZE; i++)
+	{
+		// カーソルが現在マスの下端より上なら、Y座標のマス番号は index - 1
+		if (cursorY < i * (BOARD_HEIGHT / BOARD_SIZE))
+		{
+			y = i - 1;
+			break;
+		}
+	}
+
+	// XとYのマス番号が見つかった場合は、カーソルのあるマス番号を返す
+	if (x != -1 && y != -1)
+	{
+		return y * BOARD_SIZE + x;
+	}
+
+	return -1;
 }
 
 /// <summary>

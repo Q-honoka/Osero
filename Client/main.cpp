@@ -73,7 +73,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	int pos = 0;
 	while (isEnd == false)
 	{
-		WaitKey();
+		gameManager.Update();
+
 		// ターンプレイヤーの場合、位置を送信する
 		if (currentTurn == packet.roll)
 		{
@@ -109,8 +110,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 
 		gameManager.Draw();
 	}
-
-	WaitKey();
 
 	DxLib_End();
 
