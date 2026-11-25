@@ -1,4 +1,6 @@
 ﻿#include "NetWorkManager.h"
+#include "GameManager.h"
+#include "WindowData.h"
 #include "Packet.h"
 #include "DxLib.h"
 
@@ -26,7 +28,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 {
 	SetDoubleStartValidFlag(TRUE);
 	ChangeWindowMode(TRUE);
-	SetGraphMode(640, 480, 32);
+	SetGraphMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32);
 	SetDrawScreen(DX_SCREEN_BACK);
 
 	if (DxLib_Init() == -1)
@@ -35,6 +37,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	}
 
 	NetWorkManager netWorkManager;
+	GameManager gameManager;
+
+	// 初期化に失敗したらプログラムを終了する
+	if (gameManager.SuccessInit() == false)
+	{
+		printfDx("GameManagerの初期化に失敗。プログラムを終了します\n");
+		return 1;
+	}
 
 	if (netWorkManager.SuccessInit() == false)
 	{
@@ -96,6 +106,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 			currentTurn = serverPacket.turnPlayer;
 			printfDx("現在のターン：%s\n", currentTurn == ClientRoll::FIRST ? "先手" : "後手");
 		}
+
+		gameManager.Draw();
 	}
 
 	WaitKey();
