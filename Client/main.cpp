@@ -75,38 +75,49 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	{
 		gameManager.Update();
 
-		// ターンプレイヤーの場合、位置を送信する
-		if (currentTurn == packet.roll)
+		// クリックされた位置を記録する
+		if ((GetMouseInput() & MOUSE_INPUT_LEFT) != 0)
 		{
-			PlayerPacket playerPacket =
+			pos = gameManager.GetBoardPosition();
+
+			// 盤外でなければ、サーバーに送信する
+			if (pos != -1)
 			{
-				{PacketID::PLAYING,
-				sizeof(PlayerPacket)},
-				pos++
-			};
-			if (netWorkManager.SendPacket(playerPacket) == false)
-			{
-				printfDx("サーバーへの送信失敗\n");
-				isEnd = true;
-			}
-			else
-			{
-				printfDx("サーバーへの送信成功\n");
+				// ターンプレイヤーの場合、位置を送信する
+				if (currentTurn == packet.roll)
+				{
+					PlayerPacket playerPacket =
+					{
+						{PacketID::PLAYING,
+						sizeof(PlayerPacket)},
+						pos,
+						false
+					};
+					if (netWorkManager.SendPacket(playerPacket) == false)
+					{
+						printfDx("サーバーへの送信失敗\n");
+						isEnd = true;
+					}
+					else
+					{
+						printfDx("サーバーへの送信成功\n");
+					}
+				}
 			}
 		}
 
-		// 結果の送信を待つ
-		ServerPacket serverPacket;
-		if (netWorkManager.RecvPacket(serverPacket) == false)
-		{
-			printfDx("サーバーからの受信失敗\n");
-			isEnd = true;
-		}
-		else
-		{
-			currentTurn = serverPacket.turnPlayer;
-			printfDx("現在のターン：%s\n", currentTurn == ClientRoll::FIRST ? "先手" : "後手");
-		}
+		//// 結果の送信を待つ
+		//ServerPacket serverPacket;
+		//if (netWorkManager.RecvPacket(serverPacket) == false)
+		//{
+		//	printfDx("サーバーからの受信失敗\n");
+		//	isEnd = true;
+		//}
+		//else
+		//{
+		//	currentTurn = serverPacket.turnPlayer;
+		//	printfDx("現在のターン：%s\n", currentTurn == ClientRoll::FIRST ? "先手" : "後手");
+		//}
 
 		gameManager.Draw();
 	}
